@@ -33,6 +33,7 @@ var loadTasks = function() {
 
   // loop over object properties
   $.each(tasks, function(list, arr) {
+    console.log(list, arr);
     // then loop over sub-array
     arr.forEach(function(task) {
       createTask(task.text, task.date, list);
@@ -81,22 +82,27 @@ $("#task-form-modal .btn-primary").click(function() {
   }
 });
 
-$(".list-group").on("click", "p", function () {
+// task text was clicked
+$(".list-group").on("click", "p", function() {
+  // get current text of p element
   var text = $(this)
     .text()
     .trim();
-  var textInput = $("<textarea>")
-    .addClass("form-control")
-    .val(text);
+
+  // replace p element with a new textarea
+  var textInput = $("<textarea>").addClass("form-control").val(text);
   $(this).replaceWith(textInput);
+
+  // auto focus new element
   textInput.trigger("focus");
-  console.log(this);
 });
 
-$(".list-group").on("blur"), "textarea", function () {
-  var text = $(this)
-    .val()
-    .trim();
+// editable field was un-focused
+$(".list-group").on("blur", "textarea", function() {
+  // get current value of textarea
+  var text = $(this).val();
+
+  // get status type and position in the list
   var status = $(this)
     .closest(".list-group")
     .attr("id")
@@ -105,34 +111,42 @@ $(".list-group").on("blur"), "textarea", function () {
     .closest(".list-group-item")
     .index();
 
+  // update task in array and re-save to localstorage
   tasks[status][index].text = text;
-  
+  saveTasks();
 
-  var taskP = $("<p")
+  // recreate p element
+  var taskP = $("<p>")
     .addClass("m-1")
     .text(text);
+
+  // replace textarea with new content
   $(this).replaceWith(taskP);
+});
 
-  saveTasks();
-};
-
-$(".list-group").on("click", "span", function () {
+// due date was clicked
+$(".list-group").on("click", "span", function() {
+  // get current text
   var date = $(this)
     .text()
     .trim();
+
+  // create new input element
   var dateInput = $("<input>")
     .attr("type", "text")
     .addClass("form-control")
     .val(date);
-
   $(this).replaceWith(dateInput);
+
+  // automatically bring up the calendar
   dateInput.trigger("focus");
 });
 
-$(".list-group").on("blur", "input=[type='text']", function () {
-  var date = $(this)
-    .val()
-    .trim();
+// value of due date was changed
+$(".list-group").on("blur", "input[type='text']", function() {
+  var date = $(this).val();
+
+  // get status type and position in the list
   var status = $(this)
     .closest(".list-group")
     .attr("id")
@@ -141,14 +155,15 @@ $(".list-group").on("blur", "input=[type='text']", function () {
     .closest(".list-group-item")
     .index();
 
+  // update task in array and re-save to localstorage
   tasks[status][index].date = date;
   saveTasks();
 
+  // recreate span and insert in place of input element
   var taskSpan = $("<span>")
     .addClass("badge badge-primary badge-pill")
     .text(date);
-  
-  $(this).replaceWith(taskSpan);
+    $(this).replaceWith(taskSpan);
 });
 
 // remove all tasks
